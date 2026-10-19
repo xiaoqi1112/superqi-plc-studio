@@ -2,7 +2,7 @@
 <!-- 部署后请把 <loc> 改成实际域名（例如 https://superqi.net/） -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://superqi.pages.dev/</loc>
+    <loc>https://xiaoqi1112.github.io/superqi-plc-studio/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
