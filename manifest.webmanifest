@@ -1,0 +1,20 @@
+{
+  "name": "SuperQi PLC Studio",
+  "short_name": "SuperQi PLC",
+  "description": "博途（TIA Portal）风格 PLC 梯形图仿真与学习工具，纯前端、离线可用。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape-primary",
+  "background_color": "#f0f0f0",
+  "theme_color": "#009999",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
