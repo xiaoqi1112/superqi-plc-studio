@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperQi PLC Studio · 博途风格 PLC 梯形图仿真与学习</title>
+
+<meta name="description" content="SuperQi PLC Studio：在浏览器里运行的西门子 TIA（博途）风格 PLC 梯形图仿真与学习工具。支持拖拽编程、按扫描周期仿真、TON/TOF/CTU、编译检查、交叉引用、教学关卡与 AI 生成梯形图，本地离线可用。">
+<meta name="keywords" content="SuperQi,SuperQi PLC,PLC 仿真,梯形图,博途,TIA Portal,西门子,S7-1200,PLC 学习,电气自动化,工控,PLC 编程练习">
+<meta name="author" content="SuperQi">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#009999">
+<meta name="application-name" content="SuperQi PLC Studio">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SuperQi PLC Studio">
+<meta property="og:title" content="SuperQi PLC Studio · 博途风格 PLC 梯形图仿真与学习">
+<meta property="og:description" content="浏览器里的博途风格梯形图编辑器：拖拽编程、扫描仿真、定时器/计数器、编译检查、交叉引用、教学关卡、AI 生成梯形图。">
+<meta property="og:image" content="docs/screenshot.png">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SuperQi PLC Studio · 博途风格梯形图仿真">
+<meta name="twitter:description" content="浏览器里的博途风格梯形图编辑器与学习工具。">
+<meta name="twitter:image" content="docs/screenshot.png">
+
+<!-- 部署到自己的域名后，把下面这行取消注释并改成实际地址，有利于搜索引擎识别主域名
+<link rel="canonical" href="https://superqi.pages.dev/">
+-->
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<!-- 给搜索引擎看的标题与简介（视觉上隐藏，不影响界面） -->
+<div class="seo-only">
+  <h1>SuperQi PLC Studio — 博途（TIA Portal）风格 PLC 梯形图仿真与学习工具</h1>
+  <p>SuperQi PLC Studio 是一个纯前端、离线可用的 PLC 梯形图练习环境：拖拽放置常开/常闭触点、线圈、置位复位、TON/TOF、CTU 计数器，按真实扫描周期仿真，带编译检查、交叉引用、6 个教学关卡和 AI 生成梯形图。</p>
+</div>
+
+<!-- ==================== 功能区（Ribbon） ==================== -->
+<header class="ribbon">
+  <div class="ribbon-bar">
+    <div class="brand">
+      <div class="logo">SQ</div>
+      <div class="brand-text"><strong>SuperQi PLC Studio</strong><span>TIA 风格 · 梯形图仿真</span></div>
+    </div>
+
+    <nav class="ribbon-tabs" id="ribbonTabs">
+      <button data-page="home" class="active">开始</button>
+      <button data-page="view">视图</button>
+      <button data-page="online">在线</button>
+    </nav>
+
+    <div class="doc-title"><b>Main [OB1]</b><span id="docSub">梯形图</span></div>
+
+    <div class="ribbon-right">
+      <span id="connState" class="conn offline">离线</span>
+      <input id="projName" class="proj-name" value="未命名项目" title="项目名称" spellcheck="false">
+    </div>
+  </div>
+
+  <div class="ribbon-pages">
+
+    <!-- 开始 -->
+    <div class="ribbon-page active" id="page-home">
+      <div class="rgroup">
+        <div class="ritems">
+          <button id="btnNew" class="rb"><i>▢</i><span>新建</span></button>
+          <button id="btnSave" class="rb"><i>▣</i><span>保存</span></button>
+          <button id="btnExport" class="rb"><i>⇩</i><span>导出</span></button>
+          <button id="btnImport" class="rb"><i>⇧</i><span>导入</span></button>
+        </div>
+        <div class="rlabel">项目</div>
+      </div>
+      <div class="rgroup">
+        <div class="ritems">
+          <button id="btnUndo" class="rb"><i>↶</i><span>撤销</span></button>
+          <button id="btnRedo" class="rb"><i>↷</i><span>重做</span></button>
+          <button id="btnDelete" class="rb"><i>✕</i><span>删除</span></button>
+        </div>
+        <div class="rlabel">编辑</div>
+      </div>
+      <div class="rgroup">
+        <div class="ritems">
+          <button id="btnRun" class="rb run"><i>▶</i><span>监视</span></button>
+          <button id="btnStep" class="rb"><i>⇥</i><span>单步</span></button>
+          <button id="btnReset" class="rb"><i>⟲</i><span>复位</span></button>
+          <label class="rb-select">周期
+            <select id="scanSel">
+              <option value="10">10 ms</option>
+              <option value="20" selected>20 ms</option>
+              <option value="50">50 ms</option>
+              <option value="100">100 ms</option>
+            </select>
+          </label>
+        </div>
+        <div class="rlabel">仿真</div>
+      </div>
+      <div class="rgroup">
+        <div class="ritems">
+          <button id="btnCompile" class="rb"><i>⚙</i><span>编译</span></button>
+          <button id="btnDownload" class="rb" disabled title="本仿真器不连接真实 PLC"><i>⤓</i><span>下载</span></button>
+        </div>
+        <div class="rlabel">编译</div>
+      </div>
+      <div class="rgroup grow">
+        <div class="ritems">
+          <button id="btnAddRung" class="rb"><i>＋</i><span>程序段</span></button>
+          <button id="btnParallel" class="rb"><i>∥</i><span>并联</span></button>
+        </div>
+        <div class="rlabel">程序段</div>
+      </div>
+    </div>
+
+    <!-- 视图 -->
+    <div class="ribbon-page" id="page-view">
+      <div class="rgroup">
+        <div class="ritems checks">
+          <label class="chk"><input type="checkbox" id="chkComments" checked> 显示程序段注释</label>
+          <label class="chk"><input type="checkbox" id="chkSymbols" checked> 显示符号名</label>
+          <label class="chk"><input type="checkbox" id="chkGrid" checked> 显示网格点</label>
+        </div>
+        <div class="rlabel">显示</div>
+      </div>
+      <div class="rgroup">
+        <div class="ritems checks">
+          <label class="chk"><input type="checkbox" id="chkValues" checked> 在线时显示数值</label>
+        </div>
+        <div class="rlabel">监视</div>
+      </div>
+    </div>
+
+    <!-- 在线 -->
+    <div class="ribbon-page" id="page-online">
+      <div class="rgroup">
+        <div class="ritems">
+          <button id="btnRun2" class="rb run"><i>▶</i><span>监视</span></button>
+          <button id="btnStep2" class="rb"><i>⇥</i><span>单步</span></button>
+          <button id="btnReset2" class="rb"><i>⟲</i><span>复位</span></button>
+        </div>
+        <div class="rlabel">仿真</div>
+      </div>
+      <div class="rgroup">
+        <div class="ritems">
+          <label class="rb-select">扫描周期
+            <select id="scanSel2">
+              <option value="10">10 ms</option>
+              <option value="20" selected>20 ms</option>
+              <option value="50">50 ms</option>
+              <option value="100">100 ms</option>
+            </select>
+          </label>
+        </div>
+        <div class="rlabel">设置</div>
+      </div>
+      <div class="rgroup grow">
+        <div class="ritems">
+          <span class="online-note">本仿真器不连接真实 PLC；“监视”等价于开始扫描。</span>
+        </div>
+        <div class="rlabel">说明</div>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<!-- ==================== 工作区 ==================== -->
+<main class="workbench">
+
+  <!-- 左：项目树 -->
+  <aside class="tree">
+    <div class="pane-title">项目树</div>
+    <div class="tree-body">
+      <div class="tnode lv0" data-toggle><span class="tw">▾</span><span class="tico">▤</span>PLC_Studio 项目</div>
+      <div class="tchildren open">
+        <div class="tnode lv1" data-toggle><span class="tw">▾</span><span class="tico">◫</span>设备与网络</div>
+        <div class="tchildren open">
+          <div class="tnode lv2" data-toggle><span class="tw">▾</span><span class="tico">▣</span>PLC_1 [CPU 1214C DC/DC/DC]</div>
+          <div class="tchildren open">
+            <div class="tnode lv3"><span class="tw"></span><span class="tico">▧</span>设备组态</div>
+
+            <div class="tnode lv3" data-toggle><span class="tw">▾</span><span class="tico">▤</span>程序块</div>
+            <div class="tchildren open">
+              <div class="tnode lv4 selected" id="treeBlock"><span class="tw"></span><span class="tico">▦</span>Main [OB1]</div>
+              <div class="tnode lv4"><span class="tw"></span><span class="tico">▧</span>系统块</div>
+            </div>
+
+            <div class="tnode lv3"><span class="tw">▸</span><span class="tico">◈</span>工艺对象</div>
+            <div class="tnode lv3"><span class="tw">▸</span><span class="tico">▤</span>外部源文件</div>
+
+            <div class="tnode lv3" data-toggle><span class="tw">▾</span><span class="tico">▥</span>PLC 变量</div>
+            <div class="tchildren open">
+              <div class="tnode lv4" id="treeVars"><span class="tw"></span><span class="tico">▤</span>默认变量表</div>
+            </div>
+
+            <div class="tnode lv3"><span class="tw">▸</span><span class="tico">▤</span>PLC 数据类型</div>
+
+            <div class="tnode lv3" data-toggle><span class="tw">▾</span><span class="tico">▥</span>监控与强制表</div>
+            <div class="tchildren open">
+              <div class="tnode lv4" id="treeWatch"><span class="tw"></span><span class="tico">▤</span>监控表_1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tnode lv1" data-toggle><span class="tw">▾</span><span class="tico">▤</span>示例程序</div>
+        <div class="tchildren open">
+          <div id="exampleList" class="list tree-list"></div>
+        </div>
+
+        <div class="tnode lv1"><span class="tw">▸</span><span class="tico">◍</span>在线与诊断</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 中：编辑器 -->
+  <section class="editor">
+    <div class="doc-tabs">
+      <div class="doc-tab active"><span class="dt-ic">▦</span>Main [OB1]<span class="dt-close">×</span></div>
+      <div class="doc-tab ghost"><span class="dt-ic">▤</span>监控表</div>
+    </div>
+
+    <div class="editor-tools">
+      <div class="favorites" id="favorites"></div>
+      <div class="tool-right">
+        <input id="rungComment" class="rung-comment" placeholder="程序段注释" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="canvas" id="canvas"></div>
+  </section>
+
+  <!-- 右：指令树 -->
+  <aside class="instructions">
+    <div class="pane-title">指令</div>
+    <div class="instr-search">
+      <input id="palSearch" placeholder="搜索指令…" spellcheck="false">
+    </div>
+    <div class="instr-body">
+      <div class="palette" id="palette"></div>
+      <p class="hint" id="paletteHint">点指令后，把鼠标移到导线上、出现 + 时点击；也可以直接拖到画布</p>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ==================== 巡视窗口 ==================== -->
+<section class="inspector">
+  <div class="insp-resizer" id="inspResizer" title="拖动调整巡视窗口高度"></div>
+  <div class="insp-head">
+    <span class="insp-title">巡视窗口</span>
+    <div class="tabs" id="tabs">
+      <button data-tab="monitor" class="active">监视</button>
+      <button data-tab="props">属性</button>
+      <button data-tab="crossref">交叉引用</button>
+      <button data-tab="info">信息</button>
+      <button data-tab="ai">AI 助手</button>
+      <button data-tab="learn">学习</button>
+    </div>
+  </div>
+
+  <div class="insp-body">
+
+    <!-- 监视 -->
+    <div class="tab-body active" id="tab-monitor">
+      <div class="mon-grid">
+        <div class="mon-block">
+          <h4>输入 I <span class="tip">点击切换 0/1</span></h4>
+          <div id="inputs" class="io-grid"></div>
+          <h4 style="margin-top:12px">位存储 M</h4>
+          <div id="flags" class="io-grid"></div>
+        </div>
+        <div class="mon-block">
+          <h4>输出 Q</h4>
+          <div id="outputs" class="io-grid"></div>
+          <h4 style="margin-top:12px">数据字 MW / MD</h4>
+          <div id="words" class="word-list"></div>
+        </div>
+        <div class="mon-block wide">
+          <h4>定时器 / 计数器</h4>
+          <div id="timers" class="tc-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 属性 -->
+    <div class="tab-body" id="tab-props">
+      <div id="propsBody" class="props-wrap"><p class="empty">选中画布里的元素后可编辑属性</p></div>
+    </div>
+
+    <!-- 交叉引用 -->
+    <div class="tab-body" id="tab-crossref">
+      <div id="xrefBody" class="xref-wrap"><p class="empty">还没有可交叉引用的操作数</p></div>
+    </div>
+
+    <!-- 信息（编译结果） -->
+    <div class="tab-body" id="tab-info">
+      <div class="info-bar">
+        <button id="btnCompile2" class="btn small primary">编译</button>
+        <span id="compileState" class="compile-state">未编译</span>
+      </div>
+      <div id="infoBody" class="info-wrap"><p class="empty">点「编译」检查程序结构、地址与双线圈</p></div>
+    </div>
+
+    <!-- AI -->
+    <div class="tab-body" id="tab-ai">
+      <div class="ai-grid">
+        <div class="ai-left">
+          <p class="ai-lead">描述控制要求生成梯形图，或解释 / 体检当前程序；也可以直接问工控概念问题。</p>
+          <textarea id="aiInput" rows="3" placeholder="例：按下启动按钮电机运行，按停止按钮停止；也可以问：什么是自锁？"></textarea>
+          <div class="chips" id="aiChips"></div>
+          <div class="row">
+            <button id="aiGen" class="btn primary">生成梯形图</button>
+            <button id="aiExplain" class="btn">解释程序</button>
+            <button id="aiDiag" class="btn">体检</button>
+            <a href="#" id="aiSettingsToggle" class="link">API 设置</a>
+          </div>
+          <div id="aiSettings" class="ai-settings hidden">
+            <label>接口地址<input id="aiEndpoint" placeholder="https://api.deepseek.com/v1/chat/completions"></label>
+            <label>API Key<input id="aiKey" type="password" placeholder="sk-..."></label>
+            <label>模型<input id="aiModel" placeholder="deepseek-chat"></label>
+            <div class="row">
+              <button id="aiSaveCfg" class="btn small primary">保存</button>
+              <button id="aiClearCfg" class="btn small">清除</button>
+            </div>
+            <p class="hint">Key 只存本机 localStorage。浏览器直连可能被跨域拦截，此时用「启动-联网模式.bat」仍可能受限，需自建代理。</p>
+          </div>
+        </div>
+        <div class="ai-right">
+          <div id="aiOut" class="ai-out"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 学习 -->
+    <div class="tab-body" id="tab-learn">
+      <div class="learn-grid">
+        <div id="lessonList" class="lesson-list"></div>
+        <div id="lessonDetail" class="lesson-detail"><p class="empty">选左侧关卡开始</p></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="statusbar">
+  <span id="simState" class="pill">已停止</span>
+  <span id="scanInfo">扫描 0 次</span>
+  <span class="sep">|</span>
+  <span id="statusText">就绪</span>
+  <span class="spacer"></span>
+  <span class="brand-foot">SuperQi PLC Studio · 教学仿真（非西门子官方软件）</span>
+</footer>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+
+<script src="js/core.js"></script>
+<script src="js/runtime.js"></script>
+<script src="js/library.js"></script>
+<script src="js/nlp.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
