@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 部署到自己的域名后，把下面这一行的域名换成实际地址
+Sitemap: https://superqi.pages.dev/sitemap.xml
